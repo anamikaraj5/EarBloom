@@ -1,44 +1,22 @@
-import { Text, View, StyleSheet, ImageBackground, TouchableOpacity, ScrollView, TextInput, Alert, Image } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { Text, View, StyleSheet, ImageBackground, TouchableOpacity, ScrollView, TextInput, Alert, Image, Platform } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import Footer from '@/components/footer';
 
 export default function UpdateProduct() {
   const router = useRouter();
-  const { productid } = useLocalSearchParams();
+  const params = useLocalSearchParams();
 
-  const [productname, setProductName] = useState('');
-  const [price, setPrice] = useState<number>(0);
-  const [category, setCategory] = useState('');
-  const [type, setType] = useState('');
-  const [quantity, setQuantity] = useState<number>(0);
-  const [description, setDescription] = useState('');
-  const [images, setImages] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await fetch(`http://192.168.214.134:3000/product/viewproduct/${productid}`, {
-          method: 'GET',
-          credentials: 'include',
-        });
-        const data = await response.json();
-        setProductName(data.productname);
-        setPrice(data.price);
-        setCategory(data.category);
-        setType(data.type);
-        setQuantity(data.quantity);
-        setDescription(data.description);
-        setImages(data.images || []);
-      } catch (error) {
-        console.error('Failed to fetch product:', error);
-        Alert.alert('Error', 'Failed to fetch product details');
-      }
-    };
-    fetchProduct();
-  }, [productid]);
+  const [productname, setProductName] = useState<string>(params.productname as string || '');
+  const [productid] = useState<string>(params.productid as string || '');
+  const [price, setPrice] = useState<number>(parseFloat(params.price as string) || 0);
+  const [category, setCategory] = useState<string>(params.category as string || '');
+  const [type, setType] = useState<string>(params.type as string || '');
+  const [quantity, setQuantity] = useState<number>(parseInt(params.quantity as string) || 0);
+  const [description, setDescription] = useState<string>(params.description as string || '');
+  const [images, setImages] = useState<string[]>(params.image ? [params.image as string] : []);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -49,12 +27,13 @@ export default function UpdateProduct() {
 
     if (!result.canceled) {
       const asset = result.assets[0];
-      setImages([asset.uri]); // Only one image allowed
+      setImages([asset.uri]);
     }
   };
 
   const handleUpdate = async () => {
     const formData = new FormData();
+
     formData.append('productname', productname);
     formData.append('price', price.toString());
     formData.append('category', category);
@@ -62,19 +41,28 @@ export default function UpdateProduct() {
     formData.append('quantity', quantity.toString());
     formData.append('description', description);
 
-    if (images.length > 0 && !images[0].startsWith('data:')) {
+    if (images.length > 0) {
       const uri = images[0];
       const filename = uri.split('/').pop() || 'image.jpg';
       const match = /\.(\w+)$/.exec(filename);
       const ext = match?.[1]?.toLowerCase();
       const mimeType = ext ? `image/${ext}` : 'image/jpeg';
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      formData.append('image', blob, filename);
+
+      if (Platform.OS === 'web') {
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        formData.append('image', blob, filename);
+      } else {
+        formData.append('image', {
+          uri,
+          name: filename,
+          type: mimeType,
+        } as unknown as Blob);
+      }
     }
 
     try {
-      const response = await fetch('http://192.168.4.134:3000/product/updateproduct', {
+      const response = await fetch(`http://192.168.214.134:3000/product/updateproduct/${productid}`, {
         method: 'PUT',
         body: formData,
         credentials: 'include',
@@ -84,29 +72,33 @@ export default function UpdateProduct() {
 
       if (!response.ok) throw new Error(data.message || 'Update failed');
 
-      Alert.alert('Success', 'Product updated successfully');
-      router.push('/viewall');
+      Alert.alert('Success', data.message);
+      router.back();
     } catch (error: any) {
-      console.error('Update error:', error);
+      console.error('Error during update:', error);
       Alert.alert('Error', error.message);
     }
   };
 
   return (
-    <ImageBackground source={require('../assets/images/bg1.png')} style={styles.background} resizeMode="cover">
+    <ImageBackground
+      source={require('../assets/images/bg1.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.container}>
           <Text style={styles.head}>Update Earring</Text>
 
           <View style={styles.inputs}>
             <Text style={styles.label}>Product Name</Text>
-            <TextInput style={styles.input} value={productname} onChangeText={setProductName} />
+            <TextInput style={styles.input} value={productname} onChangeText={setProductName} placeholder="Enter product name" placeholderTextColor="#aaa" />
 
             <Text style={styles.label}>Price</Text>
-            <TextInput style={styles.input} value={price.toString()} onChangeText={(text) => setPrice(parseFloat(text) || 0)} />
+            <TextInput style={styles.input} value={price.toString()} onChangeText={text => setPrice(parseFloat(text) || 0)} placeholder="Enter price" placeholderTextColor="#aaa" />
 
             <Text style={styles.label}>Category</Text>
-            <TextInput style={styles.input} value={category} onChangeText={setCategory} />
+            <TextInput style={styles.input} value={category} onChangeText={setCategory} placeholder="Enter category" placeholderTextColor="#aaa" />
 
             <Text style={styles.label}>Type</Text>
             <View style={styles.selectbox}>
@@ -119,14 +111,14 @@ export default function UpdateProduct() {
             </View>
 
             <Text style={styles.label}>Quantity</Text>
-            <TextInput style={styles.input} value={quantity.toString()} onChangeText={(text) => setQuantity(parseInt(text) || 0)} />
+            <TextInput style={styles.input} value={quantity.toString()} onChangeText={(text) => setQuantity(parseInt(text) || 0)} placeholder="Enter quantity" placeholderTextColor="#aaa" />
 
             <Text style={styles.label}>Description</Text>
-            <TextInput style={styles.input} value={description} onChangeText={setDescription} />
+            <TextInput style={styles.input} value={description} onChangeText={setDescription} placeholder="Enter description" placeholderTextColor="#aaa" />
           </View>
 
           <TouchableOpacity onPress={pickImage} style={styles.button3}>
-            <Text style={styles.buttonText}>Upload New Image</Text>
+            <Text style={styles.buttonText}>Upload Image</Text>
           </TouchableOpacity>
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 }}>
@@ -226,4 +218,6 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
 });
+
+
 

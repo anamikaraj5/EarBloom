@@ -17,7 +17,7 @@
     @UseInterceptors(
       FileInterceptor('image', {
         storage: memoryStorage(),
-        limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+        limits: { fileSize: 5 * 1024 * 1024 },
       }),
     )
     async addProduct(
@@ -25,7 +25,7 @@
       @Body() body: CreateProductDto,
     ) {
 
-      console.log('File received:', file); // 👈 Check this now
+      console.log('File received:', file); 
     console.log('Body received:', body);
 
       let imageBase64: string | null = null;

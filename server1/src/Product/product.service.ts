@@ -92,39 +92,8 @@ export class ProductService {
     }
   }
 
-
-  // async updateProduct(productid:string ,body:any) : Promise<string>{
-  //   try{
-  //       console.log(body)
-  //       const existingProduct = await this.productModel.findOne({productid: body.productid})
-  //       if(!existingProduct)
-  //       {
-  //           throw new BadRequestException("Product not found..")
-  //       }
-  //       existingProduct.productname=body.productname,
-  //       existingProduct.price=body.price,
-  //       existingProduct.description=body.description,
-  //       existingProduct.category=body.category,
-  //       existingProduct.type=body.type,
-  //       existingProduct.quantity=body.quantity
-  //       if (body.images) {
-  //           existingProduct.images = body.images
-  //         }
-      
-  //         await existingProduct.save()
-      
-  //         return "Product updated successfully"
-  //   }
-  //   catch(error)
-  //   {
-  //       console.error(error)
-  //       throw new InternalServerErrorException("Error updating book")
-  //   }
-  // }
-
-  async updateProduct(productid: string, body: any): Promise<string> {
+  async updateProduct(productid: string, body: any): Promise<{ message: string }> {
     try {
-
       const existingProduct = await this.productModel.findOne({ productid });
   
       if (!existingProduct) {
@@ -137,18 +106,19 @@ export class ProductService {
       existingProduct.category = body.category;
       existingProduct.type = body.type;
       existingProduct.quantity = body.quantity;
-  
-      if (body.images) {
+
+      if (body.images && body.images.length > 0) {
         existingProduct.images = body.images;
       }
   
       await existingProduct.save();
   
-      return "Product updated successfully";
+      return { message: "Product updated successfully" };
     } catch (error) {
       console.error(error);
       throw new InternalServerErrorException("Error updating product");
     }
   }
+  
   
 }

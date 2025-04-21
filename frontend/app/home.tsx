@@ -34,21 +34,6 @@ export default function App() {
           </View>
         </View>
       </ScrollView>
-
-      {/* <View style={styles.footer}>
-        <TouchableOpacity style={styles.button2} onPress={() => router.push('/home')}>
-          <Text style={styles.buttonText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button2} onPress={() => router.push('/add')}>
-          <Text style={styles.buttonText}>Add</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button2} onPress={() => router.push('/viewall')}>
-          <Text style={styles.buttonText}>View</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button2}>
-          <Text style={styles.buttonText}>Logout</Text>
-        </TouchableOpacity>
-      </View> */}
       <Footer/>
     </View>
     

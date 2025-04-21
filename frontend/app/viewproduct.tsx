@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: 360,
-    height: 300, // or any height you want
+    height: 300, 
     borderRadius: 10,
     marginBottom: 20,
   },

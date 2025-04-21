@@ -41,11 +41,11 @@ const styles = StyleSheet.create({
     color: '#8B4513',
     fontSize: 60,
     fontWeight: 'bold',
-    marginBottom: 30, // space below title
+    marginBottom: 30, 
   },
   buttonGroup: {
-    flexDirection:"row", // vertical arrangement
-    gap: 16, // spacing between buttons (RN 0.71+)
+    flexDirection:"row", 
+    gap: 16, 
     alignItems: 'center',
   },
   button: {
