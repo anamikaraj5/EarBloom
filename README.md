@@ -7,8 +7,6 @@ Earbloom is a user-friendly web application built for browsing, managing, and sh
 
 - 🔍 View Product - Users can browse through all available earrings and view detailed information.
 
-- 🖼️ Image Upload - Upload base64-encoded images for product display.
-
 - 🔒 User Authentication - Secure Sign Up, Login, and Logout to keep your data safe.
 
 
