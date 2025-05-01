@@ -50,7 +50,8 @@ export default function Add() {
         ]);
       };
       reader.readAsDataURL(file);
-    } else {
+    } 
+    else {
       const result = await ImagePicker.launchImageLibraryAsync({
         allowsMultipleSelection: false,
         mediaTypes: ImagePicker.MediaTypeOptions.Images,

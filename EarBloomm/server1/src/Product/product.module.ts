@@ -10,7 +10,9 @@ import { ProductService } from "./product.service";
             name : Product.name,
             schema:productschema,
         }])],
-
+        exports: [
+            MongooseModule, // 👈 This is critical!
+          ],
         providers: [ProductService],
         controllers: [ProductController]
     }

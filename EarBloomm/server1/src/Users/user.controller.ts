@@ -1,7 +1,8 @@
-import { Controller, Post, Body, UsePipes, ValidationPipe,Res, Get } from "@nestjs/common";
+import { Controller, Post, Body, UsePipes, ValidationPipe,Res, Get,UseGuards,Req } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { createUserDto } from "./dto/createUser.dto";
 import { Response } from  'express'
+import { JwtAuthGuard } from "src/jwtauth.gaurd";
 
 @Controller('user')
 export class usercontroller{
@@ -26,5 +27,11 @@ export class usercontroller{
     async logout(@Res({ passthrough: true }) res: Response){
         return await this.userservice.logout(res)
     }
+
+    @Get('profile')
+    @UseGuards(JwtAuthGuard)
+    getProfile(@Req() req) {
+    return { role: req.user.role };
+}
 
 }

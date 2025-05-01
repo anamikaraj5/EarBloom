@@ -4,34 +4,27 @@
   import { ProductService } from './product.service';
   import { CreateProductDto } from './createProduct.dto';
   import { JwtAuthGuard } from '../jwtauth.gaurd'
-  import { AuthGuard } from '@nestjs/passport';
+  import { AdminGuard } from '../admin.gaurd'
+
 
   @Controller('product')
   export class ProductController {
     constructor(private productService: ProductService) {}
   
-
     //Adding product
     @Post('/addproduct')
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard,AdminGuard)
     @UseInterceptors(
       FileInterceptor('image', {
         storage: memoryStorage(),
         limits: { fileSize: 5 * 1024 * 1024 },
       }),
     )
-    async addProduct(
-      @UploadedFile() file: Multer.File,
-      @Body() body: CreateProductDto,
-    ) {
-
-      console.log('File received:', file); 
-    console.log('Body received:', body);
+    async addProduct(@UploadedFile() file: Multer.File,@Body() body: CreateProductDto,) {
 
       let imageBase64: string | null = null;
 
       if (file) {
-        console.log('Received file:', file)
         imageBase64 = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
       }
 
@@ -39,7 +32,7 @@
       return this.productService.addProduct({
         ...body,
         images: imageBase64 ? [imageBase64] : [],
-      });
+      })
     }
 
 

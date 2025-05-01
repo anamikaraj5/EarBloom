@@ -23,12 +23,15 @@ export class UserService {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const userCount = await this.userModel.countDocuments()
+
         const newUser = new this.userModel({
             name,
             email,
             password: hashedPassword,
+            role: userCount === 0 ? 'admin' : 'user',
     
-        });
+        })
 
         try {
             await newUser.save();
@@ -61,10 +64,7 @@ export class UserService {
                 throw new Error('SECRET_KEY is not defined in the environment variables');
             }
     
-            const payload = {
-            sub: existingUser._id,
-            email: existingUser.email,
-            };
+            const payload = {sub: existingUser._id,email: existingUser.email,role:existingUser.role};
 
             const token = jwt.sign(payload, secret)
             res.cookie('jwt', token, {httpOnly: true,secure: false, });
