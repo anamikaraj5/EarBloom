@@ -14,7 +14,7 @@ export class Cart {
   quantity: number;
 }
 
-export type CartDocument = Cart & Document; // CartDocument is now the type that extends the base Document type
+export type CartDocument = Cart & Document; 
 
 export const CartSchema = SchemaFactory.createForClass(Cart);
 

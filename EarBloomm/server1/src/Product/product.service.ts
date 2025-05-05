@@ -119,6 +119,11 @@ export class ProductService {
       throw new InternalServerErrorException("Error updating product");
     }
   }
+
+  async getProductById(product: string) {
+    return this.productModel.findById(product);
+  }
+  
   
   
 }

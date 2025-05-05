@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 
 const PaymentPage = () => {
   const [name, setName] = useState('');
@@ -9,48 +16,50 @@ const PaymentPage = () => {
   const [address, setAddress] = useState('');
   const [message, setMessage] = useState('');
   const [totalAmount, setTotalAmount] = useState(0);
-  
+
   const router = useRouter();
+  const { total } = useLocalSearchParams(); 
 
   useEffect(() => {
-    // Ensure total is defined and parse it
-    if (router.query.total) {
-      setTotalAmount(parseFloat(router.query.total));
+    if (total) {
+      const parsedAmount = parseFloat(total as string);
+      if (!isNaN(parsedAmount)) {
+        setTotalAmount(parsedAmount);
+      } else {
+        console.error('Invalid total amount passed to PaymentPage');
+        setMessage('Invalid total amount.');
+      }
     } else {
-      // Handle case where total is not passed correctly
       console.error('Total amount not passed to PaymentPage');
       setMessage('Total amount is missing.');
     }
-  }, [router.query.total]);
+  }, [total]);
 
   const handlePayment = async () => {
     if (!name || !email || !phone || !address) {
       setMessage('Please fill in all the fields.');
       return;
     }
-
+  
     try {
       const paymentResponse = await fetch('http://192.168.214.134:3000/payment/pay', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, address, amount: totalAmount }), // Include totalAmount in payment request
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          address,
+          amount: totalAmount,
+        }),
         credentials: 'include',
       });
+  
       const paymentData = await paymentResponse.json();
-
+  
       if (paymentData.message === 'Payment successful') {
-        const removeCartResponse = await fetch('http://192.168.214.134:3000/cart/removeAll', {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-
-        const removeCartData = await removeCartResponse.json();
-        if (removeCartData.message === 'All items removed from cart and stock restored') {
-          setMessage('Payment successful! All items have been removed from your cart.');
-          router.push('/home');
-        } else {
-          setMessage('Error clearing cart after payment.');
-        }
+        Alert.alert('Success', 'Payment successful!');
+        router.push('/home'); 
       } else {
         setMessage(paymentData.message || 'Payment failed. Please try again.');
       }
@@ -59,6 +68,7 @@ const PaymentPage = () => {
       setMessage('Error during payment. Please try again.');
     }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -92,7 +102,7 @@ const PaymentPage = () => {
         onChangeText={setAddress}
       />
 
-      <Text style={styles.amountText}>Total Amount: ₹{totalAmount}</Text> {/* Display the total amount */}
+      <Text style={styles.amountText}>Total Amount: ₹{totalAmount}</Text>
 
       <TouchableOpacity style={styles.payButton} onPress={handlePayment}>
         <Text style={styles.payButtonText}>Pay</Text>
@@ -147,6 +157,7 @@ const styles = StyleSheet.create({
 });
 
 export default PaymentPage;
+
 
 
 

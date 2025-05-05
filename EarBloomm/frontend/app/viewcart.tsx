@@ -8,7 +8,7 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import { useRouter } from 'expo-router'; // or use from your navigation setup
+import { useRouter } from 'expo-router'; 
 
 interface CartItem {
   _id: string;
@@ -101,10 +101,9 @@ const CartPage = () => {
   };
 
   const handleProceedToPay = () => {
-    const total = getTotalAmount(); // Calculate total amount
+    const total = getTotalAmount(); 
     Alert.alert('Proceeding to Payment', `Total Amount: ₹${total}`);
     
-    // Pass the total as a query parameter to the payment page
     router.push(`/payment?total=${total}`);
   };
   

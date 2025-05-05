@@ -16,8 +16,7 @@ import {
   @Controller('cart')
   export class CartController {
     constructor(private readonly cartService: CartService) {}
-  
-    // Add a product to the cart
+
     @Post('add')
     @UseGuards(JwtAuthGuard) 
     async addToCart(
@@ -36,7 +35,6 @@ import {
       return this.cartService.getCartItems(userEmail); 
     }
 
-    // Update the quantity of a product in the cart
     @Patch('update/:productId')
     @UseGuards(JwtAuthGuard)
     async updateCartItemQuantity(
@@ -52,15 +50,12 @@ import {
       );
     }
 
-
-  // Remove a product from the cart
   @Delete('remove/:productId')
   @UseGuards(JwtAuthGuard) 
   async removeFromCart(
-    @Param('productId') productId: string,  // Get the productId from the request params
-    @Req() req // Access the logged-in user's email from the request
+    @Param('productId') productId: string,  
+    @Req() req 
   ) {
-    // Validate the productId format before proceeding
     if (!Types.ObjectId.isValid(productId)) {
       throw new Error('Invalid product ID format');
     }
@@ -69,8 +64,6 @@ import {
     return this.cartService.removeFromCart(userEmail, new Types.ObjectId(productId));
   }
 
-
-  // Route to remove all items from cart
   @Delete('removeAll')
   @UseGuards(JwtAuthGuard)
   async removeAllFromCart(@Req() req) {

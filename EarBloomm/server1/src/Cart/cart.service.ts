@@ -52,9 +52,6 @@ export class CartService {
   }
   
 
-  
-
-  // Update the quantity of an item in the cart
   async updateCartItemQuantity(
     userEmail: string,
     productId: Types.ObjectId,
@@ -77,11 +74,9 @@ export class CartService {
       throw new BadRequestException(`Only ${product.quantity} items available in stock`);
     }
   
-    // Update cart item
     cartItem.quantity = newQuantity;
     await cartItem.save();
-  
-    // Update product stock
+
     product.quantity -= quantityChange;
     await product.save();
   
@@ -89,14 +84,13 @@ export class CartService {
   }
   
 
-  // Remove an item from the cart by user email
   async removeFromCart(userEmail: string, productId: Types.ObjectId) {
     const cartItem = await this.cartModel.findOne({ userEmail, product: productId });
     if (!cartItem) throw new NotFoundException('Cart item not found');
 
     const product = await this.productModel.findById(productId);
     if (product) {
-      product.quantity += cartItem.quantity; // Restore the stock
+      product.quantity += cartItem.quantity; 
       await product.save();
     }
 
@@ -110,23 +104,20 @@ export class CartService {
     const cartItems = await this.cartModel.find({ userEmail });
   
     if (cartItems.length === 0) {
-      throw new NotFoundException('No items found in cart');
+      return { message: 'Cart already empty' }; 
     }
   
-    // Restore the stock for all products in the cart
-    for (const cartItem of cartItems) {
-      const product = await this.productModel.findById(cartItem.product);
-      if (product) {
-        product.quantity += cartItem.quantity;  // Restore the stock
-        await product.save();
-      }
-    }
-  
-    // Remove all items from the user's cart
     await this.cartModel.deleteMany({ userEmail });
   
-    return { message: 'All items removed from cart and stock restored' };
+    return { message: 'All items removed from cart ' };
   }
+  
+  async getCartByEmail(email: string) {
+    return this.cartModel.find({ userEmail: email });
+  }
+  
+  
+  
   
 }
 

@@ -53,9 +53,11 @@ export default function Footer() {
         <Text style={styles.buttonText}>View</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button2} onPress={() => router.push('/viewcart')}>
-        <Text style={styles.buttonText}>Cart</Text>
-      </TouchableOpacity>
+      {role === 'user' && (
+        <TouchableOpacity style={styles.button2} onPress={() => router.push('/viewcart')}>
+          <Text style={styles.buttonText}>Cart</Text>
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity style={styles.button2} onPress={handleLogout}>
         <Text style={styles.buttonText}>Logout</Text>
